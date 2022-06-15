@@ -1,0 +1,62 @@
+plugins {
+    id 'java'
+    id "org.jetbrains.kotlin.jvm" version "1.7.0"
+}
+
+version = '1.0.0'
+group = 'wtf.shield'
+archivesBaseName = 'shield'
+
+sourceCompatibility = targetCompatibility = '17'
+compileJava {
+    sourceCompatibility = targetCompatibility = '17'
+    options.encoding 'UTF-8'
+}
+
+compileKotlin {
+    kotlinOptions {
+        jvmTarget = "17"
+    }
+}
+
+configurations {
+    embed
+    implementation.extendsFrom embed
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    embed("net.dv8tion:JDA:5.0.0-alpha.12")
+    embed('com.typesafe:config:1.4.2')
+    embed('org.reflections:reflections:0.10.2')
+    embed('ch.qos.logback:logback-classic:1.2.11')
+
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.7.0"
+    implementation "org.jetbrains.kotlin:kotlin-reflect:1.7.0"
+
+    implementation configurations.embed
+}
+
+jar {
+    from(configurations.embed.collect {
+        it.isDirectory() ? it : zipTree(it)
+    }) {
+        exclude 'module-info.class',
+                'META-INF/maven/**',
+                'META-INF/DEPENDENCIES**',
+                'META-INF/LICENSE**',
+                'META-INF/NOTICE**',
+                'mozilla/**/*.txt',
+                'org/**/*.txt',
+                'org/**/*.properties'
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
+
+    manifest.attributes(
+            'Main-Class': 'wtf.shield.Launcher',
+            'Class-Path': '.'
+    )
+}
